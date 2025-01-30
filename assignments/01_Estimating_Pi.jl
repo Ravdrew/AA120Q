@@ -102,7 +102,8 @@ function throw_needle()
 	θ = 0
 	
 	# STUDENT CODE START
-	
+	x = rand() * 5
+	θ = rand() * π
     # STUDENT CODE END
 
     return (x,θ) # returns values
@@ -209,7 +210,23 @@ function needle_overlaps(x::Float64, θ::Float64)
 	overlaps = true
 	
 	# STUDENT CODE START
+	nearest_edge_x = round(x)
 	
+	x_component = 0.5 * abs(cos(θ))
+	needle_left_x = x - x_component
+	needle_right_x = x + x_component
+	
+	#println("x: ", x, "   θ: ", θ)
+	#println("bounds: ", needle_left_x, " to ", needle_right_x)
+	
+	if needle_left_x ≤ nearest_edge_x && needle_right_x ≥ nearest_edge_x
+		overlaps = true
+	else
+		overlaps = false
+	end
+
+	#println("out: ", overlaps)
+	#println("")
     # STUDENT CODE END
 	
 	return overlaps
@@ -281,7 +298,16 @@ function buffon_calc(n::Int)
 	estimated_pi = 0
 	
 	# STUDENT CODE START
-	
+	overlaps = 0
+	for i in 1:n
+		x, θ = throw_needle()
+		if needle_overlaps(x, θ)
+			overlaps += 1
+		end
+	end
+
+	ratio = overlaps/n
+	estimated_pi = 2 / ratio
     # STUDENT CODE END
 
 	return estimated_pi # returns your calculated estimate for π
@@ -386,7 +412,15 @@ function run_trials()
 
 	# Implement so that you run 100 trials for each of the 15 sample sizes
     # STUDENT CODE START
-	
+	for size_index in 1:15
+		sum = 0.0
+		trial_outs = Float64[]
+		for trial in 1:100
+			append!(trial_outs, buffon_calc(nsamples[size_index]))
+		end
+		mean_y[size_index] = mean(trial_outs)
+		stderr_y[size_index] = std(trial_outs) / 10  # sqrt(100)
+	end
     # STUDENT CODE END
 
     return mean_y, stderr_y # return the trials for each of the 15 sample sizes 
